@@ -21,7 +21,7 @@ const Dashboard = () => {
       setStocks(res?.data?.stocks);
       setTotalStocks(res?.data?.totalNoOfStocks)
     } catch (err) {
-      console.error(err);
+      console.error(err?.response?.data);
     }
   };
 

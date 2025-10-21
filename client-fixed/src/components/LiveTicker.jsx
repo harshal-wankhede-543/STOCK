@@ -17,8 +17,8 @@ const LiveTicker = () => {
     };
 
     fetchStocks();
-    const interval = setInterval(fetchStocks, 5000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchStocks, 5000);
+    // return () => clearInterval(interval);
   }, []);
 console.log("stocks: ", stocks )
   return (

@@ -54,7 +54,7 @@ const Portfolio = ({
 
   useEffect(() => {
     getStock();
-  }, [refreshTrigger, sortKey, sortOrder]);
+  }, [sortKey, sortOrder,refreshTrigger]);
 
   // Filter and sort
   // let filteredStocks = stocks.filter((s) =>

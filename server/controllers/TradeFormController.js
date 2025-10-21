@@ -12,7 +12,7 @@ export const buyStock = async (req, res, next) => {
 }
 export const showStock = async (req, res) => {
     const stocks = await Stock.find({});
-    const { sortKey="symbol", sortOrder="", search="" } = req.query
+    const { sortKey="symbol", sortOrder="asc", search="" } = req.query
     console.log("sort values: ", sortKey, sortOrder)
     const query = {}
     if(search) query.symbol = { $regex: search, $options: "i" }
