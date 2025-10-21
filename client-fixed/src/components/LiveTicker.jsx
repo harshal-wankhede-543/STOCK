@@ -9,9 +9,10 @@ const LiveTicker = () => {
     const fetchStocks = async () => {
       try {
         const res = await api.get("/list");
-        setStocks(res.data);
+        console.log("get all stocks: ". res?.data)
+        setStocks(res?.data?.stocks);
       } catch (err) {
-        console.error(err);
+        console.error(err?.response?.data);
       }
     };
 
@@ -19,10 +20,10 @@ const LiveTicker = () => {
     const interval = setInterval(fetchStocks, 5000);
     return () => clearInterval(interval);
   }, []);
-
+console.log("stocks: ", stocks )
   return (
     <Paper sx={{ p: 2, overflowX: "auto", mb: 2, display: "flex", gap: 2 }}>
-      {stocks.map((s) => {
+      {stocks && stocks.map((s) => {
         const price = s.currentPrice ?? s.price ?? 0; // fallback if undefined
         const change = s.price ? ((price - s.price) / s.price) * 100 : 0;
 

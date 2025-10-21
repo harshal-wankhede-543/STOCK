@@ -15,7 +15,7 @@ const TradeForm = ({ onStockAdded }) => {
   useEffect(() => {
     const fetchStocks = async () => {
       const res = await api.get("/list");
-      setStocks(res.data);
+      setStocks(res.data.stocks);
     };
     fetchStocks();
   }, []);
@@ -42,8 +42,8 @@ const TradeForm = ({ onStockAdded }) => {
       setTakeProfit(0);
       setSymbol("");
     } catch (err) {
-      console.error(err);
-      alert("Error executing trade");
+      console.error(err?.response?.data);
+      alert("Error executing trade", err?.response?.data);
     }
   };
 

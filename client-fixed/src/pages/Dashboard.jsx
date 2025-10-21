@@ -7,6 +7,7 @@ import LiveTicker from "../components/LiveTicker.jsx";
 import api from "../init/api";
 
 const Dashboard = () => {
+  const [totalStocks, setTotalStocks] = useState("")
   const [themeMode, setThemeMode] = useState("light");
   const [stocks, setStocks] = useState([]);
 
@@ -16,7 +17,9 @@ const Dashboard = () => {
   const fetchStocks = async () => {
     try {
       const res = await api.get("/list");
-      setStocks(res.data);
+      console.log("get all stocks: ", res?.data?.stocks)
+      setStocks(res?.data?.stocks);
+      setTotalStocks(res?.data?.totalNoOfStocks)
     } catch (err) {
       console.error(err);
     }
@@ -24,10 +27,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchStocks();
-  }, []);
+  }, [totalStocks]);
 
   const totalValue = stocks.reduce((acc, s) => acc + s.qty * s.price, 0);
-  const totalStocks = stocks.length;
   const recentPurchases = [...stocks]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 3);
