@@ -1,0 +1,5 @@
+# handle all text files automatically
+* text=auto
+
+# ignore node_modules completely
+node_modules/** text eol=lf
