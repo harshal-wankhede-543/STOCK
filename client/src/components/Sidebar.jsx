@@ -49,7 +49,7 @@ const Sidebar = ({ open, toggleSidebar, accountBalance = 10000 }) => {
       {/* Account Balance */}
       <Box sx={{ mb: 3, p: 1, bgcolor: "primary.main", color: "white", borderRadius: 2 }}>
         <Typography variant="subtitle2">Account Balance</Typography>
-        <Typography variant="h6">${accountBalance.toLocaleString()}</Typography>
+        <Typography variant="h6">Rs {accountBalance.toLocaleString()}</Typography>
       </Box>
 
       {/* Navigation Links */}

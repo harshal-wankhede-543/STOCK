@@ -5,6 +5,10 @@ const TradeFormSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    price: {
+        type: Number,
+        required: true,
+    },
     stopLoss: {
         type: Number,
         required: true,
