@@ -1,5 +1,6 @@
 import { 
-  Box, CssBaseline, createTheme, ThemeProvider, Card, CardContent, Typography, List, ListItem, LinearProgress, Chip, Divider 
+  Box, CssBaseline, createTheme, ThemeProvider, Card, CardContent, Typography, 
+  LinearProgress, Chip, Divider, Grid 
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import PerformanceChart from "../components/PerformanceChart.jsx";
@@ -7,7 +8,7 @@ import LiveTicker from "../components/LiveTicker.jsx";
 import api from "../init/api";
 
 const Dashboard = () => {
-  const [totalStocks, setTotalStocks] = useState("")
+  const [totalStocks, setTotalStocks] = useState("");
   const [themeMode, setThemeMode] = useState("light");
   const [stocks, setStocks] = useState([]);
 
@@ -17,9 +18,8 @@ const Dashboard = () => {
   const fetchStocks = async () => {
     try {
       const res = await api.get("/list");
-      console.log("get all stocks: ", res?.data?.stocks)
       setStocks(res?.data?.stocks);
-      setTotalStocks(res?.data?.totalNoOfStocks)
+      setTotalStocks(res?.data?.totalNoOfStocks);
     } catch (err) {
       console.error(err?.response?.data);
     }
@@ -98,30 +98,57 @@ const Dashboard = () => {
             gap: 1,
           }}
         >
-          <Card sx={{ maxHeight: "600px", overflowY: "auto" }}>
-            <CardContent sx={{ p: 1.5 }}>
-              <Typography variant="h6" gutterBottom>
-                My Portfolio Status
-              </Typography>
-              <Typography>Total Stocks: {totalStocks}</Typography>
-              <Typography>Total Value: ${totalValue.toFixed(2)}</Typography>
+          <Card sx={{ maxHeight: "600px", overflowY: "auto", p: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              My Portfolio Status
+            </Typography>
 
-              <Divider sx={{ my: 1 }} />
+            {/* Top Section: Two Mini Cards Side by Side */}
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ backgroundColor: "#f5f5f5", boxShadow: 2 }}>
+                  <CardContent sx={{ textAlign: "center" }}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Total Stocks
+                    </Typography>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="h6">{totalStocks}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card sx={{ backgroundColor: "#f5f5f5", boxShadow: 2 }}>
+                  <CardContent sx={{ textAlign: "center" }}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Total Value
+                    </Typography>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="h6">${totalValue.toFixed(2)}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
 
-              <Typography variant="subtitle1" gutterBottom>
-                Top 3 Recent Purchases
-              </Typography>
-              <List>
-                {recentPurchases.map((s) => (
-                  <ListItem key={s._id} sx={{ justifyContent: "space-between" }}>
-                    <span>
-                      {s.symbol} - {s.qty} shares
-                    </span>
-                    <Chip label={`$${s.price}`} size="small" color="primary" />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
+            {/* Bottom Section: 3 Recent Purchases in Column */}
+            <Typography variant="subtitle1" gutterBottom>
+              Recent Purchases
+            </Typography>
+            <Divider sx={{ my: 1 }} />
+
+            <Grid container spacing={2} direction="column">
+              {recentPurchases.map((s) => (
+                <Grid item xs={12} key={s._id}>
+                  <Card sx={{ backgroundColor: "#f5f5f5", boxShadow: 2 }}>
+                    <CardContent sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Typography>
+                        {s.symbol} - {s.qty} shares
+                      </Typography>
+                      <Chip label={`$${s.price}`} size="small" color="primary" />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Card>
 
           <PerformanceChart />
