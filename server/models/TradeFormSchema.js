@@ -1,25 +1,29 @@
 import mongoose from "mongoose";
-
 const TradeFormSchema = new mongoose.Schema({
+    name: {
+        type: String,
+    },
     qty: {
         type: Number,
         required: true,
     },
     price: {
         type: Number,
-        required: true,
     },
-    stopLoss: {
-        type: Number,
-        required: true,
-    },
-    takeProfit: {
-        type: Number,
-        required: true,
-    },
-    symbol: {
-        type: String,
-    }
+    
 }, { timestamps: true })
-const Stock = mongoose.model("Stock", TradeFormSchema);
-export default Stock;
+export const Trade = mongoose.model("Trade", TradeFormSchema);
+const StocksFormSchema = new mongoose.Schema({
+    name: {
+        type: String,
+    },
+    qty: {
+        type: Number,
+        required: true,
+    },
+    price: {
+        type: Number,
+    },
+    
+}, { timestamps: true })
+export const Stock = mongoose.model("Stock", StocksFormSchema);

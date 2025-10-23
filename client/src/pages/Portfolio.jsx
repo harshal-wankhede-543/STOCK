@@ -35,17 +35,19 @@ const Portfolio = ({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState("symbol");
+  const [sortKey, setSortKey] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [filteredStocks, setFilteredStocks] = useState([])
+  const [filteredStocks, setFilteredStocks] = useState([]);
   // For edit modal
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedStock, setSelectedStock] = useState({});
   const getStock = async () => {
     try {
-      const res = await api.get(`/list?sortKey=${sortKey}&sortOrder=${sortOrder}&search=${search}`);
-      setStocks(res.data.stocks);
-      setFilteredStocks(res.data.pagination)
+      const res = await api.get(
+        `/stocks/buy-list?sortKey=${sortKey}&sortOrder=${sortOrder}&search=${search}`
+      );
+      setStocks(res.data.trades);
+      setFilteredStocks(res.data.trades);
       console.log("pagination: ", res.data);
     } catch (err) {
       console.error(err?.response?.data);
@@ -54,25 +56,10 @@ const Portfolio = ({
 
   useEffect(() => {
     getStock();
-  }, [sortKey, sortOrder,refreshTrigger]);
-
-  // Filter and sort
-  // let filteredStocks = stocks.filter((s) =>
-  //   s.symbol.toLowerCase().includes(search.toLowerCase())
-  // );
-
-  // filteredStocks.sort((a, b) => {
-  //   let valA = a[sortKey] ?? "";
-  //   let valB = b[sortKey] ?? "";
-  //   if (typeof valA === "string") valA = valA.toLowerCase();
-  //   if (typeof valB === "string") valB = valB.toLowerCase();
-  //   if (valA < valB) return sortOrder === "asc" ? -1 : 1;
-  //   if (valA > valB) return sortOrder === "asc" ? 1 : -1;
-  //   return 0;
-  // });
+  }, [sortKey, sortOrder, refreshTrigger, search]);
 
   const displayedStocks = enablePagination
-    ? filteredStocks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    ? filteredStocks?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : filteredStocks;
 
   const handleEdit = (stock) => {
@@ -82,7 +69,7 @@ const Portfolio = ({
 
   const saveEdit = async () => {
     try {
-      const res = await api.patch(`/${selectedStock._id}/edit`, selectedStock);
+      const res = await api.patch(`/stocks/${selectedStock._id}/edit`, selectedStock);
       console.log("stock updated: ", res.data);
       setOpenEdit(false);
       getStock();
@@ -93,13 +80,13 @@ const Portfolio = ({
 
   const handleDelete = async (stockId) => {
     try {
-      await api.delete(`/${stockId}/delete`);
+      await api.delete(`/stocks/${stockId}/delete`);
       getStock();
     } catch (err) {
       console.error(err);
     }
   };
-
+console.log('stocks', stocks)
   return (
     <Card
       sx={{
@@ -142,8 +129,10 @@ const Portfolio = ({
               onChange={(e) => setSortKey(e.target.value)}
               sx={{ minWidth: 130 }}
             >
-              <MenuItem value="" disabled>Select Sort</MenuItem>
-              <MenuItem value="symbol">Symbol</MenuItem>
+              <MenuItem value="" disabled>
+                Select Sort
+              </MenuItem>
+              <MenuItem value="name">Name</MenuItem>
               <MenuItem value="qty">Quantity</MenuItem>
               <MenuItem value="price">Buy Price</MenuItem>
             </Select>
@@ -158,63 +147,67 @@ const Portfolio = ({
           </Box>
         )}
 
-        <Table stickyHeader>
-          <TableHead>
-            <TableRow>
-              <TableCell>Stock</TableCell>
-              <TableCell>Qty</TableCell>
-              <TableCell>Buy Price</TableCell>
-              <TableCell>Current</TableCell>
-              <TableCell>Profit/Loss</TableCell>
-              {showEdit && <TableCell>Edit</TableCell>}
-              {showDelete && <TableCell>Delete</TableCell>}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {displayedStocks.map((p) => {
-              const profit = 0;
-              return (
-                <TableRow key={p._id}>
-                  <TableCell>{p.symbol}</TableCell>
-                  <TableCell>{p.qty}</TableCell>
-                  <TableCell>${p.price}</TableCell>
-                  <TableCell>${p.price}</TableCell>
-                  <TableCell sx={{ color: profit >= 0 ? "green" : "red" }}>
+        {stocks ? (
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>Stock</TableCell>
+                <TableCell>Qty</TableCell>
+                <TableCell>Buy Price</TableCell>
+                {/* <TableCell>Current</TableCell> */}
+                {/* <TableCell>Profit/Loss</TableCell> */}
+                {showEdit && <TableCell>Edit</TableCell>}
+                {showDelete && <TableCell>Delete</TableCell>}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {displayedStocks.map((p) => {
+                // const profit = 0;
+                return (
+                  <TableRow key={p._id}>
+                    <TableCell>{p.name}</TableCell>
+                    <TableCell>{p.qty}</TableCell>
+                    <TableCell>${p.price}</TableCell>
+                    {/* <TableCell>${p.price}</TableCell> */}
+                    {/* <TableCell sx={{ color: profit >= 0 ? "green" : "red" }}>
                     ${profit}
-                  </TableCell>
-                  {showEdit && (
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => handleEdit(p)}
-                      >
-                        Edit
-                      </Button>
-                    </TableCell>
-                  )}
-                  {showDelete && (
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(p._id)}
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  )}
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                  </TableCell> */}
+                    {showEdit && (
+                      <TableCell>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => handleEdit(p)}
+                        >
+                          Edit
+                        </Button>
+                      </TableCell>
+                    )}
+                    {showDelete && (
+                      <TableCell>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color="error"
+                          onClick={() => handleDelete(p._id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        ) : (
+          "Loading..."
+        )}
 
         {enablePagination && (
           <TablePagination
             component="div"
-            count={filteredStocks.length}
+            count={filteredStocks?.length}
             page={page}
             onPageChange={(e, newPage) => setPage(newPage)}
             rowsPerPage={rowsPerPage}

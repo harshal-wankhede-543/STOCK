@@ -8,17 +8,14 @@ const LiveTicker = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await api.get("/list");
-        console.log("get all stocks: ". res?.data)
+        const res = await api.get("/stocks/all-list");
+        console.log("get all stocks: ". res?.data?.stocks)
         setStocks(res?.data?.stocks);
       } catch (err) {
-        console.error(err?.response?.data);
+        console.error(err?.response);
       }
     };
-
     fetchStocks();
-    // const interval = setInterval(fetchStocks, 5000);
-    // return () => clearInterval(interval);
   }, []);
 console.log("stocks: ", stocks )
   return (
@@ -31,7 +28,7 @@ console.log("stocks: ", stocks )
           <Box
             key={s._id}
             sx={{
-              minWidth: 120,
+              minWidth: 150,
               p: 1,
               borderRadius: 1,
               bgcolor: "#f5f5f5",
@@ -39,11 +36,9 @@ console.log("stocks: ", stocks )
               border: "1px solid #ddd",
             }}
           >
-            <Typography variant="subtitle2">{s.symbol || "N/A"}</Typography>
-            <Typography variant="h6">${price.toFixed(2)}</Typography>
+            <Typography variant="subtitle2">{s.name || "N/A"}</Typography>
+            <Typography variant="h6">Rs <b> {s.price.toFixed(2)}</b></Typography>
             <Typography variant="body2" sx={{ color: change >= 0 ? "green" : "red" }}>
-              {change >= 0 ? "+" : ""}
-              {change.toFixed(2)}%
             </Typography>
           </Box>
         );

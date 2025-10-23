@@ -11,8 +11,7 @@ app.use(cors({
 }))
 
 connectDB();
-// app.use("/api/buy", TradeFormRoutes)
-app.use("/api", TradeFormRoutes)
+app.use("/api/stocks", TradeFormRoutes)
 app.use((err, req, res, next) => {
     const { status = 500, message = "Something went wrong" } = err;
     res.status(status).send(message);

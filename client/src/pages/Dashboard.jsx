@@ -17,9 +17,10 @@ const Dashboard = () => {
 
   const fetchStocks = async () => {
     try {
-      const res = await api.get("/list");
-      setStocks(res?.data?.stocks);
-      setTotalStocks(res?.data?.totalNoOfStocks);
+      const res = await api.get("/stocks/buy-list");
+      console.log("stocks: ", res?.data);
+      setStocks(res?.data?.trades);
+      setTotalStocks(res?.data?.totalNoOfTrades);
     } catch (err) {
       console.error(err?.response?.data);
     }
@@ -141,9 +142,9 @@ const Dashboard = () => {
                   <Card sx={{ backgroundColor: "#f5f5f5", boxShadow: 2 }}>
                     <CardContent sx={{ display: "flex", justifyContent: "space-between" }}>
                       <Typography>
-                        {s.symbol} - {s.qty} shares
+                        {s.name} - {s.qty} shares
                       </Typography>
-                      <Chip label={`$${s.price}`} size="small" color="primary" />
+                      <Chip label={`Rs ${s.price}`} size="small" color="primary" />
                     </CardContent>
                   </Card>
                 </Grid>

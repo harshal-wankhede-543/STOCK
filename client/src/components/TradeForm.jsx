@@ -5,104 +5,70 @@ import {
   Typography,
   MenuItem,
   FormControl,
-  InputLabel,
   Select,
+  InputLabel,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import api from "../init/api"; // your backend api
 
 const TradeForm = ({ onStockAdded }) => {
-  const [symbol, setSymbol] = useState("");
-  const [qty, setQty] = useState(0);
-  const [stopLoss, setStopLoss] = useState(0);
-  const [takeProfit, setTakeProfit] = useState(0);
+  const [data, setData] = useState({
+    name: "",
+    qty: "",
+    price: "",
+    avg: "",
+    net: "",
+    day: "",
+  });
   const [stocks, setStocks] = useState([]);
   const [currentPrice, setCurrentPrice] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
-  const apiKey = "O2465H1GY29Q766Y";
-  const keywords = ["A", "B", "C", "D"];
+  // const apiKey = "O2465H1GY29Q766Y";
+  const handleChange = (event) => {
+    setData({ ...data, [event.target.name]: event.target.value });
+  };
   // Fetch available stocks
   useEffect(() => {
     const fetchStocks = async () => {
-      const symbols = [];
-      // if (!symbol) return;
+      // const symbols = [];
       try {
-        for (const keyword of keywords) {
-          const res = await api.get("https://www.alphavantage.co/query", {
-            params: {
-              function: "SYMBOL_SEARCH",
-              keywords: keyword,
-              apikey: apiKey,
-            },
-            timeout: 10000,
-          });
-          const matches = res.data.bestMatches || [];
-          matches.forEach((match) => {
-            symbols.push({
-              symbol: match["1. symbol"],
-              name: match["2. name"],
-            });
-          });
-        }
-        setStocks(symbols);
+        const res = await api.get("/stocks/all-list");
+        console.log("get stocks list: ", res?.data?.stocks);
+        setStocks(res?.data?.stocks || []);
       } catch (e) {
-        console.log("error: ", e);
+        console.log("error: ", e?.response?.data);
       }
     };
     fetchStocks();
   }, []);
-  useEffect(() => {
-    const findStock = async () => {
-      const res = await api.get("https://www.alphavantage.co/query", {
-        params: {
-          function: "TIME_SERIES_INTRADAY",
-          symbol: symbol,
-          interval: "5min",
-          apikey: apiKey,
-        },
-      });
-      console.log("api",res.data?.Information || res.data);
-      const data = res.data["Time Series (5min)"];
-      if (!data)
-        return console.log(
-          "No data returned, possibly rate limit reached:",
-          res.data?.Information || res.data
 
-        );
-      const latestTime = Object.keys(data)[0];
-      const latestPrice = data[latestTime]["4. close"];
-      setCurrentPrice(parseFloat(latestPrice));
-      setTotalCost(qty * parseFloat(latestPrice));
-    };
-    findStock();
-  }, [symbol, qty]);
-  // Update current price and total cost when symbol or qty changes
+  // Update totalCost if qty changes
   useEffect(() => {
-    const stock = stocks.find((s) => s.symbol === symbol);
-    if (stock) {
-      // setCurrentPrice(stock.currentPrice || stock.price);
-      setTotalCost(qty * (stock.currentPrice || stock.price));
-    }
-  }, [symbol, qty, stocks]);
+    if (!currentPrice) return;
+    const q = parseInt(data.qty) || 0; // ❌ prevent NaN
+    setTotalCost(q * currentPrice);
+  }, [ data.qty, currentPrice]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!symbol || qty <= 0) return alert("Enter valid stock and quantity");
-
     try {
-      await api.post("/trade", { symbol, qty, stopLoss, takeProfit });
+      await api.post("/stocks/buy", data);
       alert("Trade executed!");
-      onStockAdded(); // refresh portfolio
-      setQty(0);
-      setStopLoss(0);
-      setTakeProfit(0);
-      setSymbol("");
+      onStockAdded();
+      setData({ qty: "", price: "", avg: "", net: "", day: "" });
+      setCurrentPrice(0);
+      setTotalCost(0);
     } catch (err) {
       console.error(err?.response?.data);
-      alert("Error executing trade", err?.response?.data);
+      alert("Error executing trade: " + err?.response?.data);
     }
   };
-
+  useEffect(() => {
+    if (!data.name) return;
+    const selectedStock = stocks.find((s) => s.name === data.name);
+    if (selectedStock) setCurrentPrice(selectedStock.price);
+  }, [data.name, stocks]);
+  console.log("name: ", data.name);
   return (
     <Box
       component="form"
@@ -114,23 +80,15 @@ const TradeForm = ({ onStockAdded }) => {
       </Typography>
 
       <FormControl fullWidth sx={{ mb: 2 }}>
-        {/* <InputLabel>Stock</InputLabel> */}
-        {/* <TextField
-          type="text"
-          label="Symbol"
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
-          fullWidth
-          // sx={{ mb: 2}}
-        /> */}
+        <InputLabel>Select Stock</InputLabel>
         <Select
-          value={symbol}
-          label="Symbol"
-          onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+          name="name"
+          value={data.name}
+          onChange={(e) => setData((p) => ({ ...p, name: e.target.value }))}
         >
           {stocks.map((s) => (
-            <MenuItem key={s.symbol} value={s.symbol}>
-              {s.symbol} - {s.name}
+            <MenuItem key={s.name} value={s.name}>
+              {s.name} - {s.name}
             </MenuItem>
           ))}
         </Select>
@@ -139,38 +97,43 @@ const TradeForm = ({ onStockAdded }) => {
       <TextField
         type="number"
         label="Quantity"
-        value={qty}
-        onChange={(e) => setQty(parseInt(e.target.value))}
+        name="qty"
+        value={data.qty}
+        onChange={handleChange}
         fullWidth
         sx={{ mb: 2 }}
       />
 
-      <TextField
+      {/* <TextField
         type="number"
         label="Stop Loss"
-        value={stopLoss}
-        onChange={(e) => setStopLoss(parseFloat(e.target.value))}
+        value={data.avg}
+        name=""
+        onChange={handleChange}
         fullWidth
         sx={{ mb: 2 }}
-      />
+      /> */}
 
       <TextField
         type="number"
-        label="Take Profit"
-        value={takeProfit}
-        onChange={(e) => setTakeProfit(parseFloat(e.target.value))}
+        name="price"
+        label="Enter Price"
+        value={data.price}
+        onChange={handleChange}
         fullWidth
         sx={{ mb: 2 }}
       />
 
       <Typography>
-        Total Cost:<b> Rs {totalCost.toFixed(2)} </b>
+        Total Cost: <b>Rs {totalCost.toFixed(2)}</b>
       </Typography>
-      {symbol && (
+
+      {data.name && (
         <p>
-          Latest price for {symbol}: ${currentPrice || "Loading..."}
+          Latest price for {data.name}: Rs {currentPrice || "Loading..."}
         </p>
       )}
+
       <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
         Execute Trade
       </Button>
