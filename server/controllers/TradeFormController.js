@@ -44,6 +44,7 @@ export const showStock = async (req, res) => {
         if (sortKey === "price") sortOptions.price = sortOrder;
 
         result = await Stock.find(query).sort(sortOptions);
+        console.log("all stocks: ", result);
         totalNoOfStocks = await Stock.countDocuments(query);
 
         res.json({ stocks: result, totalNoOfStocks, pagination: result });

@@ -31,12 +31,14 @@ const Account = () => {
         const res = await api.get("/stocks/buy-list");
         setStocks(res.data?.trades);
         const txnRes = await api.get("/stocks/buy-list");
-        console.log("txn data: ", txnRes?.data?.totalNoOfTrades);
-        setTxn(txnRes?.data?.totalNoOfTrades)
-        const sortedTrans = txnRes?.data?.trades(
+        console.log("txn data: ", txnRes?.data?.trades);
+        setTxn(txnRes?.data?.totalNoOfTrades);
+        const sortedTrans = txnRes?.data?.trades.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
-      console.log("sorted trans: ", txnRes?.data?.trades);
+        // console.log("sorted trans: ", sortedTrans);
+        setTransactions(sortedTrans); // show last 5 transactions
+      // console.log("sorted trans: ", txnRes?.data?.trades);
         // setTransactions(sortedTrans.slice(0, 5)); // show last 5 transactions
       } catch (err) {
         console.error("get Data error: ", err?.message);
@@ -157,19 +159,19 @@ const Account = () => {
             {transactions.length === 0 && (
               <Typography>No recent transactions</Typography>
             )}
-            {transactions.map((tx) => (
+            {transactions ?(transactions.map((tx) => (
               <div key={tx._id}>
                 <ListItem>
                   <ListItemText
-                    primary={`${tx.type.toUpperCase()} - ${tx.symbol}`}
-                    secondary={`Qty: ${tx.qty} | Price: $${
-                      tx.price
-                    } | Date: ${new Date(tx.date).toLocaleDateString()}`}
+                    primary={`${tx?.name}`}
+                    secondary={`Qty: ${tx?.qty} | Price: $${
+                      tx?.price
+                    } | Date: ${new Date(tx?.createdAt).toLocaleDateString()}`}
                   />
                 </ListItem>
                 <Divider />
               </div>
-            ))}
+            ))) : "loading..."}
           </List>
         </CardContent>
       </Card>

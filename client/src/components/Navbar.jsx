@@ -9,7 +9,7 @@ const Navbar = ({ toggleSidebar, themeMode, toggleTheme }) => {
           <Menu />
         </IconButton>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          My Dashboard
+          Stock Market Application
         </Typography>
         <IconButton color="inherit" onClick={toggleTheme}>
           {themeMode === "light" ? <Brightness4 /> : <Brightness7 />}

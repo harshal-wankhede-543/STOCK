@@ -9,7 +9,7 @@ const LiveTicker = () => {
     const fetchStocks = async () => {
       try {
         const res = await api.get("/stocks/all-list");
-        console.log("get all stocks: ". res?.data?.stocks)
+        console.log("get all stocks: ". res?.data)
         setStocks(res?.data?.stocks);
       } catch (err) {
         console.error(err?.response);
@@ -37,7 +37,7 @@ console.log("stocks: ", stocks )
             }}
           >
             <Typography variant="subtitle2">{s.name || "N/A"}</Typography>
-            <Typography variant="h6">Rs <b> {s.price.toFixed(2)}</b></Typography>
+            <Typography variant="h6">Rs <b> {s.price}</b></Typography>
             <Typography variant="body2" sx={{ color: change >= 0 ? "green" : "red" }}>
             </Typography>
           </Box>
