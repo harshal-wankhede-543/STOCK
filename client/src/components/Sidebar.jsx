@@ -9,12 +9,27 @@ import {
   Box,
   useMediaQuery,
 } from "@mui/material";
-import { Home, ShowChart, AccountBalance, Menu, AttachMoney } from "@mui/icons-material";
+import {
+  Home,
+  ShowChart,
+  AccountBalance,
+  Menu,
+  AttachMoney,
+} from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import { useState } from "react";
+import { useEffect } from "react";
 
-const Sidebar = ({ open, toggleSidebar, accountBalance = 10000 }) => {
+const Sidebar = ({ open, toggleSidebar }) => {
   const theme = useTheme();
+  const [balance, setBalance] = useState(() => {
+    return parseFloat(localStorage.getItem("accountBalance")) || 1000000;
+  });
+  useEffect(() => {
+    const bal = parseFloat(localStorage.getItem("accountBalance")) || 1000000;
+    setBalance(bal);
+  }, []);
   const isMobile = useMediaQuery(theme.breakpoints.down("md")); // mobile/tablet
   const location = useLocation(); // get current path for highlighting
 
@@ -24,7 +39,6 @@ const Sidebar = ({ open, toggleSidebar, accountBalance = 10000 }) => {
     { text: "Trade", icon: <ShowChart />, path: "/trade" },
     { text: "Account", icon: <AttachMoney />, path: "/account" },
   ];
-
   return (
     <Drawer
       variant="temporary" // temporary drawer for both mobile & desktop
@@ -47,14 +61,22 @@ const Sidebar = ({ open, toggleSidebar, accountBalance = 10000 }) => {
       </IconButton>
 
       {/* Account Balance */}
-      <Box sx={{ mb: 3, p: 1, bgcolor: "primary.main", color: "white", borderRadius: 2 }}>
+      <Box
+        sx={{
+          mb: 3,
+          p: 1,
+          bgcolor: "primary.main",
+          color: "white",
+          borderRadius: 2,
+        }}
+      >
         <Typography variant="subtitle2">Account Balance</Typography>
-        <Typography variant="h6">Rs {accountBalance.toLocaleString()}</Typography>
+        <Typography variant="h6">Rs {balance.toLocaleString()}</Typography>
       </Box>
 
       {/* Navigation Links */}
       <List>
-        {menuItems.map(item => (
+        {menuItems.map((item) => (
           <ListItem
             key={item.text}
             button

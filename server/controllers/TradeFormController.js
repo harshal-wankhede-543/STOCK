@@ -6,10 +6,12 @@ export const getDashboard = async (req, res) => {
 }
 export const buyStock = async (req, res, next) => {
     console.log("buy request received", req.body)
+    const { qty, price } = req.body;
+    const cost = qty * price;
     const newStock = await Trade.create(req.body);
     if (!newStock) return next(new ExpressError(401, "No stock created"))
     console.log("new stock created", newStock)
-    res.status(201).json({ success: true, data: newStock });
+    res.status(201).json({ success: true, data: newStock, cost });
 }
 // export const showStock = async (req, res) => {
 //     const stocks = await Stock.find({});

@@ -12,16 +12,17 @@ import { useState, useEffect } from "react";
 import api from "../init/api"; // your backend api
 
 const TradeForm = ({ onStockAdded }) => {
+  const [accountBalance, setAccountBalance] = useState(
+  () => parseFloat(localStorage.getItem("accountBalance")) || 1000000
+);
+  const [currentPrice, setCurrentPrice] = useState(0);
   const [data, setData] = useState({
     name: "",
     qty: "",
     price: "",
-    avg: "",
-    net: "",
-    day: "",
   });
   const [stocks, setStocks] = useState([]);
-  const [currentPrice, setCurrentPrice] = useState(0);
+
   const [totalCost, setTotalCost] = useState(0);
   // const apiKey = "O2465H1GY29Q766Y";
   const handleChange = (event) => {
@@ -47,15 +48,19 @@ const TradeForm = ({ onStockAdded }) => {
     if (!currentPrice) return;
     const q = parseInt(data.qty) || 0; // ❌ prevent NaN
     setTotalCost(q * currentPrice);
-  }, [ data.qty, currentPrice]);
+  }, [data.qty, currentPrice]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post("/stocks/buy", data);
+      const res = await api.post("/stocks/buy", data);
       alert("Trade executed!");
       onStockAdded();
-      setData({ qty: "", price: "", avg: "", net: "", day: "" });
+      const balance = res?.data?.cost;
+      const remaining = accountBalance - balance;
+      setAccountBalance(remaining);
+      localStorage.setItem("accountBalance", remaining);
+      setData({ qty: "", price: "", name: "" });
       setCurrentPrice(0);
       setTotalCost(0);
     } catch (err) {
@@ -67,6 +72,7 @@ const TradeForm = ({ onStockAdded }) => {
     if (!data.name) return;
     const selectedStock = stocks.find((s) => s.name === data.name);
     if (selectedStock) setCurrentPrice(selectedStock.price);
+    setData((p) => ({ ...p, price: selectedStock.price }));
   }, [data.name, stocks]);
   console.log("name: ", data.name);
   return (
@@ -130,7 +136,7 @@ const TradeForm = ({ onStockAdded }) => {
 
       {data.name && (
         <p>
-          Latest price for {data.name}: Rs {currentPrice || "Loading..."}
+          Latest price for {data.name}: <b>Rs {currentPrice || "Loading..."}</b>
         </p>
       )}
 

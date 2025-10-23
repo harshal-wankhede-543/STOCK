@@ -2,6 +2,7 @@ import { Box, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { useState } from "react";
 import Navbar from "./components/Navbar.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import { AccountBalance } from "@mui/icons-material";
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -16,7 +17,7 @@ const Layout = ({ children }) => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Navbar toggleSidebar={toggleSidebar} themeMode={themeMode} toggleTheme={toggleTheme} />
-      <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar open={sidebarOpen} toggleSidebar={toggleSidebar} balance={AccountBalance}/>
       <Box
         component="main"
         sx={{

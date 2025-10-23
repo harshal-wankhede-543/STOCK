@@ -20,6 +20,7 @@ import { useState, useEffect } from "react";
 import api from "../init/api.js";
 
 const Account = () => {
+  const [txn,setTxn] = useState("")
   const [stocks, setStocks] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const cashAvailable = 10000; // Replace with API call if needed
@@ -27,14 +28,16 @@ const Account = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get("/list");
-        setStocks(res.data?.stocks);
-        const txnRes = await api.get("/transactions");
-        console.log("txn data: ", txnRes);
-        const sortedTrans = txnRes.sort(
+        const res = await api.get("/stocks/buy-list");
+        setStocks(res.data?.trades);
+        const txnRes = await api.get("/stocks/buy-list");
+        console.log("txn data: ", txnRes?.data?.totalNoOfTrades);
+        setTxn(txnRes?.data?.totalNoOfTrades)
+        const sortedTrans = txnRes?.data?.trades(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
-        setTransactions(sortedTrans.slice(0, 5)); // show last 5 transactions
+      console.log("sorted trans: ", txnRes?.data?.trades);
+        // setTransactions(sortedTrans.slice(0, 5)); // show last 5 transactions
       } catch (err) {
         console.error("get Data error: ", err?.message);
       }
@@ -138,7 +141,7 @@ const Account = () => {
             </Avatar>
             <Box>
               <Typography variant="subtitle2">Recent Activity</Typography>
-              <Typography variant="h6">{transactions.length} txns</Typography>
+              <Typography variant="h6">{txn} txns</Typography>
             </Box>
           </Card>
         </Grid>

@@ -167,7 +167,7 @@ console.log('stocks', stocks)
                   <TableRow key={p._id}>
                     <TableCell>{p.name}</TableCell>
                     <TableCell>{p.qty}</TableCell>
-                    <TableCell>${p.price}</TableCell>
+                    <TableCell>Rs {p.price}</TableCell>
                     {/* <TableCell>${p.price}</TableCell> */}
                     {/* <TableCell sx={{ color: profit >= 0 ? "green" : "red" }}>
                     ${profit}
